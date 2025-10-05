@@ -3,92 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pool Shot Predictor</title>
+    <title>Pool Shot Prediction Overlay</title>
     <style>
         body {
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #1a1a1a;
             font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
             color: #fff;
         }
+        
         h1 {
-            margin-bottom: 10px;
+            text-align: center;
             color: #4CAF50;
+            margin-bottom: 10px;
         }
+        
         .info {
-            margin-bottom: 20px;
             text-align: center;
             color: #aaa;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
-        canvas {
-            border: 3px solid #4CAF50;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border: 2px solid #4CAF50;
+            background-color: #0a0a0a;
+            overflow: hidden;
+        }
+        
+        #gameFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
             background-color: #0d5d0d;
-            cursor: crosshair;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
+        
+        #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
         .controls {
-            margin-top: 20px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-row {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            justify-content: center;
+            align-items: center;
         }
+        
         .control-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
+            flex: 1;
+            min-width: 200px;
         }
+        
         label {
             font-size: 12px;
             color: #aaa;
+            font-weight: bold;
         }
+        
+        input[type="number"] {
+            padding: 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
         input[type="range"] {
-            width: 150px;
+            width: 100%;
         }
+        
         button {
-            padding: 8px 16px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
+        
         button:hover {
             background-color: #45a049;
         }
-        .stats {
-            margin-top: 15px;
-            padding: 10px 20px;
+        
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        
+        .setup-mode {
+            background-color: #ff9800;
+        }
+        
+        .setup-mode:hover {
+            background-color: #e68900;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            background-color: #1a1a1a;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .status.setup {
+            border-left-color: #ff9800;
+        }
+        
+        .instructions {
             background-color: #2a2a2a;
-            border-radius: 5px;
-            font-size: 12px;
-            color: #aaa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Pool Shot Predictor</h1>
-    <div class="info">
-        Move your mouse to aim the cue. Prediction lines show direct shots (solid) and bank shots (dashed).
-    </div>
-    <canvas id="poolTable" width="800" height="500"></canvas>
-    <div class="controls">
-        <div class="control-group">
-            <label>Max Bounces: <span id="maxBouncesValue">2</span></label>
-            <input type="range" id="maxBounces" min="0" max="5" value="2">
+    <div class="container">
+        <h1>Pool Shot Prediction Overlay</h1>
+        <div class="info">
+            An overlay system that adds shot prediction to any pool game
         </div>
-        <div class="control-group">
-            <label>Prediction Length: <span id="predictionLengthValue">3.0x</span></label>
-            <input type="range" id="predictionLength" min="1" max="5" step="0.5" value="3">
+        
+        <div class="instructions">
+            <h3>Setup Instructions:</h3>
+            <ol>
+                <li>Click "Setup Table Boundaries" and click on the <strong>top-left</strong> pocket</li>
+                <li>Then click on the <strong>bottom-right</strong> pocket</li>
+                <li>The system will calculate the 4 walls and enable prediction</li>
+                <li>Move your mouse over the table to see prediction lines</li>
+            </ol>
         </div>
-        <button id="resetBtn">Reset Balls</button>
+        
+        <div class="game-container">
+            <!-- This would contain the existing pool game iframe or embed -->
+            <iframe id="gameFrame" src="demo-game.html" title="Pool Game"></iframe>
+            
+            <!-- Transparent overlay canvas for predictions -->
+            <canvas id="overlayCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="control-row">
+                <button id="setupBtn" class="setup-mode">Setup Table Boundaries (Click 2 Pockets)</button>
+                <button id="clearBtn">Clear Boundaries</button>
+                <button id="toggleBtn" disabled>Toggle Overlay (OFF)</button>
+            </div>
+            
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Cue Ball X: <span id="cueBallXValue">Not Set</span></label>
+                    <input type="number" id="cueBallX" placeholder="Enter X coordinate" min="0">
+                </div>
+                <div class="control-group">
+                    <label>Cue Ball Y: <span id="cueBallYValue">Not Set</span></label>
+                    <input type="number" id="cueBallY" placeholder="Enter Y coordinate" min="0">
+                </div>
+            </div>
+            
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Max Bounces: <span id="maxBouncesValue">2</span></label>
+                    <input type="range" id="maxBounces" min="0" max="5" value="2">
+                </div>
+                <div class="control-group">
+                    <label>Prediction Length: <span id="predictionLengthValue">3.0x</span></label>
+                    <input type="range" id="predictionLength" min="1" max="5" step="0.5" value="3">
+                </div>
+            </div>
+            
+            <div class="status" id="status">
+                Ready. Click "Setup Table Boundaries" to begin.
+            </div>
+        </div>
     </div>
-    <div class="stats" id="stats">Ready to shoot</div>
-    <script src="pool-engine.js"></script>
+    
+    <script src="pool-overlay.js"></script>
 </body>
 </html>

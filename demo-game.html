@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Pool Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0d5d0d;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        // Simple demo pool game for testing the overlay
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Game state
+        const game = {
+            wallThickness: 30,
+            pocketRadius: 20,
+            ballRadius: 12,
+            cueBall: { x: canvas.width / 4, y: canvas.height / 2, vx: 0, vy: 0 },
+            balls: [
+                { x: canvas.width * 0.6, y: canvas.height * 0.3, color: '#ff0000', vx: 0, vy: 0 },
+                { x: canvas.width * 0.65, y: canvas.height * 0.5, color: '#ffff00', vx: 0, vy: 0 },
+                { x: canvas.width * 0.7, y: canvas.height * 0.7, color: '#0000ff', vx: 0, vy: 0 }
+            ]
+        };
+        
+        function getWalls() {
+            return {
+                top: game.wallThickness,
+                bottom: canvas.height - game.wallThickness,
+                left: game.wallThickness,
+                right: canvas.width - game.wallThickness
+            };
+        }
+        
+        function getPockets() {
+            const walls = getWalls();
+            return [
+                { x: walls.left, y: walls.top },
+                { x: canvas.width / 2, y: walls.top },
+                { x: walls.right, y: walls.top },
+                { x: walls.left, y: walls.bottom },
+                { x: canvas.width / 2, y: walls.bottom },
+                { x: walls.right, y: walls.bottom }
+            ];
+        }
+        
+        function drawTable() {
+            // Playing surface
+            ctx.fillStyle = '#0d5d0d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Walls
+            const walls = getWalls();
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(0, 0, canvas.width, walls.top);
+            ctx.fillRect(0, walls.bottom, canvas.width, game.wallThickness);
+            ctx.fillRect(0, 0, walls.left, canvas.height);
+            ctx.fillRect(walls.right, 0, game.wallThickness, canvas.height);
+            
+            // Wall border
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(walls.left, walls.top, walls.right - walls.left, walls.bottom - walls.top);
+        }
+        
+        function drawPockets() {
+            const pockets = getPockets();
+            pockets.forEach(pocket => {
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(pocket.x, pocket.y, game.pocketRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+        
+        function drawBall(ball, isWhite = false) {
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(ball.x + 2, ball.y + 2, game.ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ball
+            ctx.fillStyle = isWhite ? '#fff' : ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, game.ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.arc(ball.x - 4, ball.y - 4, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Outline
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, game.ballRadius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        function render() {
+            drawTable();
+            drawPockets();
+            game.balls.forEach(ball => drawBall(ball));
+            drawBall(game.cueBall, true);
+            
+            requestAnimationFrame(render);
+        }
+        
+        // Start rendering
+        render();
+        
+        // Allow parent to query game state
+        window.getGameState = function() {
+            return {
+                cueBall: { x: game.cueBall.x, y: game.cueBall.y },
+                walls: getWalls(),
+                pockets: getPockets()
+            };
+        };
+    </script>
+</body>
+</html>
