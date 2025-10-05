@@ -1,36 +1,64 @@
 # Pool Shot Prediction Overlay
 
-A transparent overlay system that adds dynamic shot prediction and bounce visualization to any existing pool game.
+A **desktop application** that overlays shot prediction on ANY pool game webpage. Built with Electron for cross-platform compatibility.
 
 ## Overview
 
-This project provides a prediction overlay that can be placed on top of any pool game running in an HTML container (iframe, embed, or canvas). Instead of creating a complete pool game, it focuses solely on adding prediction functionality to existing games.
+This is a transparent desktop overlay application that can be placed on top of ANY existing pool game running in a web browser. It provides real-time shot prediction and bounce visualization without modifying the underlying game.
 
 ## Key Features
 
-- **Overlay Architecture**: Works on top of existing pool games without modifying them
+- **Desktop Overlay App**: Runs as a standalone application that overlays on your screen
+- **Works on ANY Webpage**: Can overlay on any pool game in any browser
 - **2-Point Table Setup**: Define table boundaries by clicking just the top-left and bottom-right pockets
 - **Automatic Wall Calculation**: The 4 walls are automatically calculated from the 2 pocket positions
 - **Dynamic Prediction Lines**: Real-time shot prediction that updates as you move your mouse
 - **Multi-Bounce Bank Shots**: Visualize shots with up to 5 wall bounces
 - **Configurable Cue Ball**: Set cue ball position via coordinates
-- **Toggle On/Off**: Enable or disable the overlay at any time
+- **Global Hotkeys**: Control the overlay without switching windows
 
-## Setup Instructions
+## Installation
 
-1. **Open index.html** in a web browser
-2. **Click "Setup Table Boundaries"**
-3. **Click on the top-left pocket** of your pool table
-4. **Click on the bottom-right pocket** of your pool table
-5. The system will automatically:
+### Prerequisites
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
+
+### Install Dependencies
+```bash
+npm install
+```
+
+## Usage
+
+### Running the App
+```bash
+npm start
+```
+
+### Global Hotkeys
+- **Ctrl+Shift+P** (Windows/Linux) or **Cmd+Shift+P** (Mac): Toggle overlay visibility
+- **Ctrl+Shift+Q** (Windows/Linux) or **Cmd+Shift+Q** (Mac): Quit application
+
+### Setup Instructions
+
+1. **Launch the application** using `npm start`
+2. **Press Ctrl+Shift+P** to show the overlay
+3. **Open your pool game** in any web browser
+4. **Click "Setup Table Boundaries"** in the control panel
+5. **Click on the top-left pocket** of the pool table in the browser
+6. **Click on the bottom-right pocket** of the pool table
+7. The system will automatically:
    - Calculate the 4 walls from these 2 points
    - Set a default cue ball position
    - Enable the prediction overlay
 
-6. **Set the cue ball position** by entering X and Y coordinates
-7. **Move your mouse** over the table to see prediction lines
+8. **Set the cue ball position** by entering X and Y coordinates
+9. **Move your mouse** over the pool table to see prediction lines
 
 ## How It Works
+
+### Desktop Overlay Architecture
+The app creates a transparent, always-on-top window that covers your entire screen. During normal operation, it's click-through (mouse events pass through to the game below). When you enter setup mode, it captures clicks to define table boundaries.
 
 ### Boundary Definition
 Instead of requiring all 6 pocket positions, this overlay simplifies setup by using only 2 pockets:
@@ -59,60 +87,109 @@ walls = {
   - Cyan: 5 bounces
 - **Orange circles**: Mark bounce points on walls
 
-### Integration with Existing Games
-
-The overlay uses a transparent canvas positioned absolutely over the game container. It doesn't interfere with the underlying game - it only adds visual prediction lines on top.
-
-```html
-<div class="game-container">
-    <iframe src="your-pool-game.html"></iframe>
-    <canvas id="overlayCanvas"></canvas> <!-- Transparent overlay -->
-</div>
-```
-
 ## Controls
 
 - **Setup Table Boundaries**: Enter setup mode to define the 2 pockets
 - **Clear Boundaries**: Reset the table boundaries
-- **Toggle Overlay**: Turn predictions on/off
-- **Cue Ball X/Y**: Set the cue ball position (in pixels)
+- **Hide Overlay**: Temporarily hide the overlay (or use Ctrl+Shift+P)
+- **Cue Ball X/Y**: Set the cue ball position (in screen pixels)
 - **Max Bounces**: Control how many wall bounces to predict (0-5)
 - **Prediction Length**: Control how far prediction lines extend (1-5x table diagonal)
 
+## Building Executables
+
+Build standalone executables for distribution:
+
+### Windows
+```bash
+npm run build:win
+```
+
+### macOS
+```bash
+npm run build:mac
+```
+
+### Linux
+```bash
+npm run build:linux
+```
+
+### All Platforms
+```bash
+npm run build
+```
+
+Built applications will be in the `dist/` folder.
+
 ## Files
 
-- **index.html** - Main UI with overlay controls
-- **pool-overlay.js** - Overlay prediction system
-- **demo-game.html** - Demo pool game for testing (replace with your own game)
+### Main Application Files
+- **main.js** - Electron main process (window management, hotkeys)
+- **overlay.html** - Overlay UI with control panel
+- **overlay.js** - Prediction system and rendering logic
+- **preload.js** - Secure IPC bridge between renderer and main process
+- **package.json** - Project configuration and dependencies
+
+### Legacy Web Version (deprecated)
+- **index.html** - Old web-based version
+- **pool-overlay.js** - Old web overlay system
+- **demo-game.html** - Demo pool game
 
 ## Technical Details
 
 ### Efficient Algorithms
-- **Ray-casting**: O(1) wall intersection per wall
+- **Ray-casting**: O(1) wall intersection detection per wall
 - **Path tracing**: Early termination on boundary exit
-- **Canvas overlay**: Zero impact on underlying game performance
+- **Canvas overlay**: Transparent rendering with minimal CPU usage
+- **Click-through**: Mouse events pass through to underlying application except during setup
 
-### Customization
+### Electron Features
+- Transparent, frameless window
+- Always-on-top overlay
+- Global hotkeys for easy access
+- Click-through capability
+- Cross-platform compatibility
 
-You can customize the overlay by modifying `pool-overlay.js`:
-- Change prediction line colors
-- Adjust line thickness and dash patterns
-- Modify bounce indicator appearance
-- Add additional features like pocket targeting
+## Platform Compatibility
 
-## Browser Compatibility
+- **Windows**: 7, 8, 10, 11
+- **macOS**: 10.11 (El Capitan) and later
+- **Linux**: Most modern distributions
 
-Works in all modern browsers with HTML5 Canvas support:
-- Chrome/Edge
-- Firefox
-- Safari
-- Opera
+## Troubleshooting
 
-## Integration Guide
+### Overlay not showing
+- Press Ctrl+Shift+P to toggle visibility
+- Check if the app is running in the system tray
 
-To integrate with your own pool game:
+### Can't click through overlay
+- Make sure you've completed setup mode
+- Click "Clear Boundaries" and try again
 
-1. Replace `demo-game.html` with your game's URL in `index.html`
-2. Ensure your game is in an iframe or container
-3. Use the overlay controls to set up table boundaries
-4. The overlay will draw predictions on top of your game
+### Predictions not visible
+- Ensure table boundaries are set correctly
+- Check that cue ball position is within the table bounds
+- Adjust prediction length slider
+
+## Development
+
+### Project Structure
+```
+ball/
+├── main.js           # Electron main process
+├── overlay.html      # Renderer UI
+├── overlay.js        # Overlay logic
+├── preload.js        # IPC bridge
+├── package.json      # Dependencies & build config
+└── README.md         # Documentation
+```
+
+### Technology Stack
+- **Electron**: Desktop application framework
+- **HTML5 Canvas**: Rendering prediction lines
+- **Pure JavaScript**: No external libraries for core logic
+
+## License
+
+MIT
