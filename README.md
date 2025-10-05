@@ -89,6 +89,7 @@ walls = {
 
 ## Controls
 
+- **Drag Handle (⋮⋮)**: Click and drag the green header bar to reposition the control panel
 - **Setup Table Boundaries**: Enter setup mode to define the 2 pockets
 - **Clear Boundaries**: Reset the table boundaries
 - **Hide Overlay**: Temporarily hide the overlay (or use Ctrl+Shift+P)

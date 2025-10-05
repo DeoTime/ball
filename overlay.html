@@ -34,17 +34,41 @@
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #4CAF50;
             border-radius: 10px;
-            padding: 15px;
+            padding: 0;
             color: #fff;
             min-width: 280px;
             z-index: 1000;
             pointer-events: auto;
         }
         
+        .drag-handle {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 10px 15px;
+            cursor: move;
+            border-radius: 8px 8px 0 0;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .drag-icon {
+            font-size: 18px;
+        }
+        
+        .control-content {
+            padding: 15px;
+        }
+        
         .control-panel h3 {
-            color: #4CAF50;
-            margin-bottom: 10px;
+            color: #fff;
+            margin: 0;
             font-size: 16px;
+            font-weight: bold;
         }
         
         .hotkeys {
@@ -176,9 +200,13 @@
     </div>
     
     <!-- Control panel -->
-    <div class="control-panel">
-        <h3>🎱 Pool Shot Predictor</h3>
+    <div class="control-panel" id="controlPanel">
+        <div class="drag-handle" id="dragHandle">
+            <span class="drag-icon">⋮⋮</span>
+            <h3>🎱 Pool Shot Predictor</h3>
+        </div>
         
+        <div class="control-content">
         <div class="hotkeys">
             <strong>Ctrl+Shift+P</strong> - Toggle overlay<br>
             <strong>Ctrl+Shift+Q</strong> - Quit app
@@ -210,6 +238,7 @@
         
         <div class="status" id="status">
             Ready. Press "Setup Table Boundaries" to begin.
+        </div>
         </div>
     </div>
     

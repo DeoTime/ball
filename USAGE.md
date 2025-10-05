@@ -58,13 +58,20 @@ Move your mouse cursor over the pool table area. You'll see:
 - **Green dashed rectangle**: Table boundaries
 - **White circle**: Cue ball position
 
-### 7. Adjust Settings
+### 7. Move the Control Panel
+
+The control panel can be repositioned anywhere on screen:
+- Click and hold the **green drag handle** (⋮⋮) at the top of the control panel
+- Drag it to your preferred location
+- Release to place it there
+
+### 8. Adjust Settings
 
 Use the sliders in the control panel:
 - **Max Bounces**: Control how many bank shot predictions to show (0-5)
 - **Prediction Length**: Control how far lines extend (1-5x table size)
 
-### 8. Hide or Quit
+### 9. Hide or Quit
 
 - Click **"Hide Overlay"** or press **Ctrl+Shift+P** to hide the overlay
 - Press **Ctrl+Shift+Q** to quit the application completely
@@ -79,6 +86,10 @@ These work even when the overlay is hidden:
 | Quit App | Ctrl+Shift+Q | Cmd+Shift+Q | Close application |
 
 ## Control Panel Features
+
+### Drag Handle
+- **Green header bar (⋮⋮)**: Click and drag to move the control panel anywhere on screen
+- The panel stays within screen boundaries automatically
 
 ### Buttons
 - **Setup Table Boundaries**: Enter setup mode to define table corners

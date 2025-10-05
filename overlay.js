@@ -22,12 +22,17 @@ class DesktopPoolOverlay {
         this.predictionLengthMultiplier = 3.0;
         this.overlayEnabled = false;
         
+        // Drag state for control panel
+        this.isDragging = false;
+        this.dragOffset = { x: 0, y: 0 };
+        
         // Resize canvas to screen
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
         
         // Setup event listeners
         this.setupEventListeners();
+        this.setupDragListeners();
         
         // Start animation
         this.animate();
@@ -58,7 +63,7 @@ class DesktopPoolOverlay {
         
         // Canvas click for setup
         document.addEventListener('click', (e) => {
-            if (this.setupMode) {
+            if (this.setupMode && !this.isDragging) {
                 this.handleSetupClick(e);
             }
         });
@@ -95,6 +100,45 @@ class DesktopPoolOverlay {
         document.getElementById('predictionLength').addEventListener('input', (e) => {
             this.predictionLengthMultiplier = parseFloat(e.target.value);
             document.getElementById('predictionLengthValue').textContent = this.predictionLengthMultiplier.toFixed(1) + 'x';
+        });
+    }
+    
+    setupDragListeners() {
+        const dragHandle = document.getElementById('dragHandle');
+        const controlPanel = document.getElementById('controlPanel');
+        
+        dragHandle.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            const rect = controlPanel.getBoundingClientRect();
+            this.dragOffset = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (this.isDragging) {
+                const newX = e.clientX - this.dragOffset.x;
+                const newY = e.clientY - this.dragOffset.y;
+                
+                // Keep panel within screen bounds
+                const maxX = window.innerWidth - controlPanel.offsetWidth;
+                const maxY = window.innerHeight - controlPanel.offsetHeight;
+                
+                const clampedX = Math.max(0, Math.min(newX, maxX));
+                const clampedY = Math.max(0, Math.min(newY, maxY));
+                
+                controlPanel.style.left = clampedX + 'px';
+                controlPanel.style.top = clampedY + 'px';
+                controlPanel.style.right = 'auto';
+                
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            this.isDragging = false;
         });
     }
     
