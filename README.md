@@ -160,6 +160,9 @@ Built applications will be in the `dist/` folder.
 
 ## Troubleshooting
 
+### GPU Process Errors (Windows)
+If you see `GPU process exited unexpectedly` errors on Windows, this is already fixed. The app disables hardware acceleration to ensure compatibility across all systems.
+
 ### Overlay not showing
 - Press Ctrl+Shift+P to toggle visibility
 - Check if the app is running in the system tray

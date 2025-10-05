@@ -173,6 +173,12 @@ Builds for all supported platforms.
 
 ## Troubleshooting
 
+### GPU Process Errors on Windows
+If you see errors like `GPU process exited unexpectedly` when starting the app:
+- This is fixed in the latest version (hardware acceleration is disabled)
+- The app uses software rendering instead, which is more compatible
+- Performance impact is minimal for this overlay application
+
 ### Overlay doesn't show
 - Press Ctrl+Shift+P to toggle
 - Check if app is running (look in task manager)

@@ -2,6 +2,9 @@
 const { app, BrowserWindow, screen, globalShortcut, ipcMain } = require('electron');
 const path = require('path');
 
+// Disable hardware acceleration to fix GPU process crashes on some Windows systems
+app.disableHardwareAcceleration();
+
 let overlayWindow = null;
 let isOverlayVisible = false;
 
