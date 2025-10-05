@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pool Shot Predictor</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        h1 {
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        .info {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #aaa;
+        }
+        canvas {
+            border: 3px solid #4CAF50;
+            background-color: #0d5d0d;
+            cursor: crosshair;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 12px;
+            color: #aaa;
+        }
+        input[type="range"] {
+            width: 150px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pool Shot Predictor</h1>
+    <div class="info">
+        Move your mouse to aim the cue. Prediction lines show direct shots (solid) and bank shots (dashed).
+    </div>
+    <canvas id="poolTable" width="800" height="500"></canvas>
+    <div class="controls">
+        <div class="control-group">
+            <label>Max Bounces: <span id="maxBouncesValue">2</span></label>
+            <input type="range" id="maxBounces" min="0" max="5" value="2">
+        </div>
+        <div class="control-group">
+            <label>Prediction Length: <span id="predictionLengthValue">3.0x</span></label>
+            <input type="range" id="predictionLength" min="1" max="5" step="0.5" value="3">
+        </div>
+        <button id="resetBtn">Reset Balls</button>
+    </div>
+    <div class="stats" id="stats">Ready to shoot</div>
+    <script src="pool-engine.js"></script>
+</body>
+</html>
