@@ -1,0 +1,52 @@
+{
+  "name": "pool-shot-predictor",
+  "version": "1.0.0",
+  "description": "Desktop overlay app for pool shot prediction on any webpage",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.poolpredictor.app",
+    "productName": "Pool Shot Predictor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "overlay.html",
+      "overlay.js",
+      "preload.js",
+      "icon.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    }
+  },
+  "keywords": [
+    "pool",
+    "billiards",
+    "prediction",
+    "overlay",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  }
+}

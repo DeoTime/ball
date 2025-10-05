@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pool Shot Predictor Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 0;
+            color: #fff;
+            min-width: 280px;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+        
+        .drag-handle {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            padding: 10px 15px;
+            cursor: move;
+            border-radius: 8px 8px 0 0;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .drag-icon {
+            font-size: 18px;
+        }
+        
+        .control-content {
+            padding: 15px;
+        }
+        
+        .control-panel h3 {
+            color: #fff;
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .hotkeys {
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .hotkeys strong {
+            color: #4CAF50;
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button.setup-mode {
+            background: #ff9800;
+        }
+        
+        button.setup-mode:hover {
+            background: #e68900;
+        }
+        
+        button.danger {
+            background: #f44336;
+        }
+        
+        button.danger:hover {
+            background: #da190b;
+        }
+        
+        .status {
+            padding: 8px;
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid #4CAF50;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+        
+        .status.setup {
+            background: rgba(255, 152, 0, 0.2);
+            border-left-color: #ff9800;
+        }
+        
+        .setup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 999;
+        }
+        
+        .setup-overlay.active {
+            display: flex;
+        }
+        
+        .setup-message {
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Transparent canvas for drawing predictions -->
+    <canvas id="overlayCanvas"></canvas>
+    
+    <!-- Setup overlay with instructions -->
+    <div id="setupOverlay" class="setup-overlay">
+        <div class="setup-message" id="setupMessage">
+            Click on the TOP-LEFT pocket
+        </div>
+    </div>
+    
+    <!-- Control panel -->
+    <div class="control-panel" id="controlPanel">
+        <div class="drag-handle" id="dragHandle">
+            <span class="drag-icon">⋮⋮</span>
+            <h3>🎱 Pool Shot Predictor</h3>
+        </div>
+        
+        <div class="control-content">
+        <div class="hotkeys">
+            <strong>Ctrl+Shift+P</strong> - Toggle overlay<br>
+            <strong>Ctrl+Shift+Q</strong> - Quit app
+        </div>
+        
+        <button id="setupBtn" class="setup-mode">Setup Table Boundaries</button>
+        <button id="clearBtn">Clear Boundaries</button>
+        <button id="minimizeBtn" class="danger">Hide Overlay</button>
+        
+        <div class="control-group">
+            <label>Cue Ball X: <span id="cueBallXValue">Not Set</span></label>
+            <input type="number" id="cueBallX" placeholder="Enter X coordinate" min="0">
+        </div>
+        
+        <div class="control-group">
+            <label>Cue Ball Y: <span id="cueBallYValue">Not Set</span></label>
+            <input type="number" id="cueBallY" placeholder="Enter Y coordinate" min="0">
+        </div>
+        
+        <div class="control-group">
+            <label>Max Bounces: <span id="maxBouncesValue">2</span></label>
+            <input type="range" id="maxBounces" min="0" max="5" value="2">
+        </div>
+        
+        <div class="control-group">
+            <label>Prediction Length: <span id="predictionLengthValue">3.0x</span></label>
+            <input type="range" id="predictionLength" min="1" max="5" step="0.5" value="3">
+        </div>
+        
+        <div class="status" id="status">
+            Ready. Press "Setup Table Boundaries" to begin.
+        </div>
+        </div>
+    </div>
+    
+    <script src="overlay.js"></script>
+</body>
+</html>
