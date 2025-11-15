@@ -1,0 +1,35 @@
+name: Monitor Oil Price
+
+on:
+  # Run on a schedule (every 10 minutes by default)
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 minutes
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Run oil price monitor
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+          OIL_PRICE_THRESHOLD: ${{ vars.OIL_PRICE_THRESHOLD || '55' }}
+        run: |
+          python monitor_oil_price.py
