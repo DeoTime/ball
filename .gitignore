@@ -27,3 +27,11 @@ Thumbs.db
 # Temporary files
 /tmp/
 *.tmp
+
+# State files
+oil_price_bot_state.json
+oil_price_state.json
+*.json.bak
+
+# Discord bot environment
+discord-bot/.env

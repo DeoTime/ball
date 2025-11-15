@@ -22,8 +22,9 @@ logger = logging.getLogger(__name__)
 # API Configuration
 API_ENDPOINT = "https://v2.airline-club.com/oil-prices"
 
-# State file to track last alert
-STATE_FILE = "/tmp/oil_price_state.json"
+# State file to track last alert and contracts
+# Can be overridden via environment variable to share with Discord bot
+STATE_FILE = os.getenv('STATE_FILE_PATH', '/tmp/oil_price_bot_state.json')
 
 
 def load_state() -> Dict[str, Any]:
@@ -34,14 +35,21 @@ def load_state() -> Dict[str, Any]:
                 return json.load(f)
     except Exception as e:
         logger.warning(f"Could not load state file: {e}")
-    return {}
+    return {
+        'contract_end_cycle': None,
+        'last_alerted_price': None,
+        'last_cycle': None,
+        'last_price': None
+    }
 
 
 def save_state(state: Dict[str, Any]) -> None:
     """Save the current state to file."""
     try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
         with open(STATE_FILE, 'w') as f:
-            json.dump(state, f)
+            json.dump(state, f, indent=2)
     except Exception as e:
         logger.error(f"Could not save state file: {e}")
 
@@ -123,8 +131,25 @@ def send_discord_notification(
         return False
 
 
-def should_alert(current_price: float, threshold: float, state: Dict[str, Any]) -> bool:
+def is_contract_active(current_cycle: int, state: Dict[str, Any]) -> bool:
+    """Check if a contract is currently active."""
+    contract_end_cycle = state.get('contract_end_cycle')
+    
+    if contract_end_cycle is None:
+        return False
+    
+    return current_cycle < contract_end_cycle
+
+
+def should_alert(current_price: float, current_cycle: int, threshold: float, state: Dict[str, Any]) -> bool:
     """Determine if an alert should be sent."""
+    # Check if contract is active
+    if is_contract_active(current_cycle, state):
+        contract_end_cycle = state.get('contract_end_cycle')
+        cycles_remaining = contract_end_cycle - current_cycle
+        logger.info(f"Contract is active until cycle {contract_end_cycle} ({cycles_remaining} cycles remaining), suppressing alert")
+        return False
+    
     last_alerted_price = state.get('last_alerted_price')
     
     # Alert if price is below threshold
@@ -197,8 +222,12 @@ def main():
     
     logger.info(f"Latest price: ${current_price:.2f} (cycle {current_cycle})")
     
+    # Update last known price and cycle in state
+    state['last_price'] = current_price
+    state['last_cycle'] = current_cycle
+    
     # Check if we should send an alert
-    if should_alert(current_price, threshold, state):
+    if should_alert(current_price, current_cycle, threshold, state):
         success = send_discord_notification(
             webhook_url,
             user_id,
@@ -219,7 +248,8 @@ def main():
         if current_price >= threshold and state.get('last_alerted_price') is not None:
             logger.info("Price is back above threshold, clearing alert state")
             state['last_alerted_price'] = None
-            save_state(state)
+        # Save state to persist last_price and last_cycle
+        save_state(state)
     
     logger.info("Oil Price Monitor completed successfully")
 
