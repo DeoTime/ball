@@ -1,15 +1,22 @@
 # Airline Club Oil Price Monitor 🛢️
 
-A GitHub Actions bot that monitors oil prices from the [Airline Club](https://www.airline-club.com/) API and sends Discord notifications when prices drop below your defined threshold.
+A GitHub Actions bot that monitors oil prices from the [Airline Club](https://www.airline-club.com/) API and sends Discord notifications when prices drop below your defined threshold. Now with an interactive Discord bot for contract management!
 
 ## Features
 
 - 🔄 Automated monitoring using GitHub Actions (runs every 10 minutes by default)
+- 🤖 **NEW: Discord bot with interactive commands** - manage contracts directly from Discord
+- 📝 **NEW: Contract-based alerts** - register contracts to pause alerts for a specified number of cycles
 - 📉 Configurable price threshold alerts
 - 💬 Discord notifications with user mentions
 - 🔔 Smart alerting - avoids duplicate notifications for the same price level
 - ⚙️ Easy configuration via GitHub Secrets and Variables
 - 📊 Detailed logging for debugging
+
+## Quick Links
+
+- **[Discord Bot Setup →](discord-bot/README.md)** - Set up the interactive Discord bot for contract management
+- **GitHub Actions Setup** - See below for automated monitoring setup
 
 ## Setup Instructions
 
@@ -73,17 +80,32 @@ If GitHub Actions is not already enabled:
 2. Click the green button to enable workflows
 3. The workflow will now run automatically every 10 minutes
 
+### 7. (Optional) Set Up Discord Bot
+
+For interactive contract management, you can set up the Discord bot:
+
+1. Follow the [Discord Bot Setup Guide](discord-bot/README.md)
+2. The bot allows you to:
+   - Register contracts with `$contract <cycles>` to pause alerts
+   - Check status with `$status` to see current prices and contract info
+   - Clear contracts with `$clear` to resume normal alerts
+   - Get help with `$help`
+
+The Discord bot and GitHub Actions workflow share state, so contracts registered via the bot will be respected by the automated monitoring system.
+
 ## How It Works
 
 1. **Scheduled Monitoring**: The GitHub Actions workflow runs every 10 minutes (configurable)
 2. **API Query**: The script fetches current oil prices from `https://v2.airline-club.com/oil-prices`
 3. **Price Check**: Compares the latest price against your threshold
-4. **Smart Alerting**: 
+4. **Contract Check**: Checks if you have an active contract (set via Discord bot) that should suppress alerts
+5. **Smart Alerting**: 
    - Sends notification when price first drops below threshold
    - Sends notification when price drops further
    - Avoids duplicate notifications for the same price level
    - Resets when price goes back above threshold
-5. **Discord Notification**: Sends a formatted message with price details and mentions you
+   - Respects active contracts and suppresses alerts until contract expires
+6. **Discord Notification**: Sends a formatted message with price details and mentions you
 
 ## Manual Triggering
 
