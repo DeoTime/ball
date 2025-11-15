@@ -1,0 +1,22 @@
+[Unit]
+Description=Oil Price Discord Bot
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/oil-price-bot
+EnvironmentFile=/home/ubuntu/oil-price-bot/.env
+ExecStart=/home/ubuntu/oil-price-bot/venv/bin/python bot.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
