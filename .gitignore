@@ -33,5 +33,10 @@ oil_price_bot_state.json
 oil_price_state.json
 *.json.bak
 
-# Discord bot environment
+# Database
+bot_data.db
+*.db
+
+# Environment files
+.env
 discord-bot/.env
